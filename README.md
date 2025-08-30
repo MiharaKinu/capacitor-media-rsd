@@ -143,7 +143,7 @@ Unless otherwise noted, there should be full feature parity between iOS and Andr
 ### getMedias(...)
 
 ```typescript
-getMedias(options?: MediaFetchOptions | undefined) => Promise<MediaResponse>
+getMedias(options?: MediaFetchOptions | undefined) => any
 ```
 
 Get filtered thumbnails from camera roll. iOS only.
@@ -154,7 +154,7 @@ Get filtered thumbnails from camera roll. iOS only.
 | ------------- | --------------------------------------------------------------- |
 | **`options`** | <code><a href="#mediafetchoptions">MediaFetchOptions</a></code> |
 
-**Returns:** <code>Promise&lt;<a href="#mediaresponse">MediaResponse</a>&gt;</code>
+**Returns:** <code>any</code>
 
 --------------------
 
@@ -162,7 +162,7 @@ Get filtered thumbnails from camera roll. iOS only.
 ### getMediaByIdentifier(...)
 
 ```typescript
-getMediaByIdentifier(options?: { identifier: string; } | undefined) => Promise<MediaPath>
+getMediaByIdentifier(options?: { identifier: string; } | undefined) => any
 ```
 
 Get a filesystem path to a full-quality media asset by its identifier. iOS only.
@@ -176,7 +176,7 @@ using this function. After that, you can use the Filesystem plugin, same as Andr
 | ------------- | ------------------------------------ |
 | **`options`** | <code>{ identifier: string; }</code> |
 
-**Returns:** <code>Promise&lt;<a href="#mediapath">MediaPath</a>&gt;</code>
+**Returns:** <code>any</code>
 
 --------------------
 
@@ -184,14 +184,14 @@ using this function. After that, you can use the Filesystem plugin, same as Andr
 ### getAlbums()
 
 ```typescript
-getAlbums() => Promise<MediaAlbumResponse>
+getAlbums() => any
 ```
 
 Get list of albums.
 
 [Code Examples](https://github.com/capacitor-community/media/blob/main/example/src/components/GetAlbums.tsx)
 
-**Returns:** <code>Promise&lt;<a href="#mediaalbumresponse">MediaAlbumResponse</a>&gt;</code>
+**Returns:** <code>any</code>
 
 --------------------
 
@@ -199,7 +199,7 @@ Get list of albums.
 ### savePhoto(...)
 
 ```typescript
-savePhoto(options?: MediaSaveOptions | undefined) => Promise<PhotoResponse>
+savePhoto(options?: MediaSaveOptions | undefined) => any
 ```
 
 Saves a still photo or GIF to the camera roll.
@@ -215,7 +215,7 @@ On iOS, most common image formats are supported.
 | ------------- | ------------------------------------------------------------- |
 | **`options`** | <code><a href="#mediasaveoptions">MediaSaveOptions</a></code> |
 
-**Returns:** <code>Promise&lt;<a href="#photoresponse">PhotoResponse</a>&gt;</code>
+**Returns:** <code>any</code>
 
 --------------------
 
@@ -223,7 +223,7 @@ On iOS, most common image formats are supported.
 ### saveVideo(...)
 
 ```typescript
-saveVideo(options?: MediaSaveOptions | undefined) => Promise<PhotoResponse>
+saveVideo(options?: MediaSaveOptions | undefined) => any
 ```
 
 Saves a video to the camera roll.
@@ -239,7 +239,7 @@ On iOS, the supported formats are based on whatever iOS supports at the time.
 | ------------- | ------------------------------------------------------------- |
 | **`options`** | <code><a href="#mediasaveoptions">MediaSaveOptions</a></code> |
 
-**Returns:** <code>Promise&lt;<a href="#photoresponse">PhotoResponse</a>&gt;</code>
+**Returns:** <code>any</code>
 
 --------------------
 
@@ -247,7 +247,7 @@ On iOS, the supported formats are based on whatever iOS supports at the time.
 ### createAlbum(...)
 
 ```typescript
-createAlbum(options: MediaAlbumCreate) => Promise<void>
+createAlbum(options: MediaAlbumCreate) => any
 ```
 
 Creates an album.
@@ -258,13 +258,15 @@ Creates an album.
 | ------------- | ------------------------------------------------------------- |
 | **`options`** | <code><a href="#mediaalbumcreate">MediaAlbumCreate</a></code> |
 
+**Returns:** <code>any</code>
+
 --------------------
 
 
 ### getAlbumsPath()
 
 ```typescript
-getAlbumsPath() => Promise<AlbumsPathResponse>
+getAlbumsPath() => any
 ```
 
 Gets the path where album folders and their corresponding photos
@@ -278,7 +280,7 @@ Only available on Android.
 
 Code Examples: [basic](https://github.com/capacitor-community/media/blob/main/example/src/components/CreateDemoAlbum.tsx), [when saving media](https://github.com/capacitor-community/media/blob/main/example/src/components/SaveMedia.tsx)
 
-**Returns:** <code>Promise&lt;<a href="#albumspathresponse">AlbumsPathResponse</a>&gt;</code>
+**Returns:** <code>any</code>
 
 --------------------
 
@@ -286,12 +288,12 @@ Code Examples: [basic](https://github.com/capacitor-community/media/blob/main/ex
 ### checkPermissions()
 
 ```typescript
-checkPermissions() => Promise<PermissionStatus>
+checkPermissions() => any
 ```
 
 Check current permissions status for accessing photos.
 
-**Returns:** <code>Promise&lt;<a href="#permissionstatus">PermissionStatus</a>&gt;</code>
+**Returns:** <code>any</code>
 
 --------------------
 
@@ -299,12 +301,12 @@ Check current permissions status for accessing photos.
 ### requestPermissions()
 
 ```typescript
-requestPermissions() => Promise<PermissionStatus>
+requestPermissions() => any
 ```
 
 Request permissions for accessing photos.
 
-**Returns:** <code>Promise&lt;<a href="#permissionstatus">PermissionStatus</a>&gt;</code>
+**Returns:** <code>any</code>
 
 --------------------
 
@@ -312,7 +314,7 @@ Request permissions for accessing photos.
 ### getPhotos(...)
 
 ```typescript
-getPhotos(options?: { albumId?: string | undefined; } | undefined) => Promise<PhotosResponse>
+getPhotos(options?: { albumId?: string | undefined; } | undefined) => any
 ```
 
 Get photos from a specific album or all photos.
@@ -321,7 +323,7 @@ Get photos from a specific album or all photos.
 | ------------- | ---------------------------------- |
 | **`options`** | <code>{ albumId?: string; }</code> |
 
-**Returns:** <code>Promise&lt;<a href="#photosresponse">PhotosResponse</a>&gt;</code>
+**Returns:** <code>any</code>
 
 --------------------
 
@@ -329,12 +331,12 @@ Get photos from a specific album or all photos.
 ### getAllPhotos()
 
 ```typescript
-getAllPhotos() => Promise<PhotosResponse>
+getAllPhotos() => any
 ```
 
 Get all photos from the device.
 
-**Returns:** <code>Promise&lt;<a href="#photosresponse">PhotosResponse</a>&gt;</code>
+**Returns:** <code>any</code>
 
 --------------------
 
@@ -342,7 +344,7 @@ Get all photos from the device.
 ### getPhotoInfo(...)
 
 ```typescript
-getPhotoInfo(options: { path: string; }) => Promise<PhotoInfo>
+getPhotoInfo(options: { path: string; }) => any
 ```
 
 Get detailed information about a specific photo.
@@ -351,7 +353,7 @@ Get detailed information about a specific photo.
 | ------------- | ------------------------------ |
 | **`options`** | <code>{ path: string; }</code> |
 
-**Returns:** <code>Promise&lt;<a href="#photoinfo">PhotoInfo</a>&gt;</code>
+**Returns:** <code>any</code>
 
 --------------------
 
@@ -359,7 +361,7 @@ Get detailed information about a specific photo.
 ### getFile(...)
 
 ```typescript
-getFile(options: { contentUri: string; quality?: number; maxWidth?: number; maxHeight?: number; }) => Promise<{ base64Data: string; name: string; type: string; size: number; }>
+getFile(options: { contentUri: string; quality?: number; maxWidth?: number; maxHeight?: number; }) => any
 ```
 
 Get file content as base64 data (Android only).
@@ -368,7 +370,7 @@ Get file content as base64 data (Android only).
 | ------------- | --------------------------------------------------------------------------------------------- |
 | **`options`** | <code>{ contentUri: string; quality?: number; maxWidth?: number; maxHeight?: number; }</code> |
 
-**Returns:** <code>Promise&lt;{ base64Data: string; name: string; type: string; size: number; }&gt;</code>
+**Returns:** <code>any</code>
 
 --------------------
 
@@ -376,10 +378,12 @@ Get file content as base64 data (Android only).
 ### exitApp()
 
 ```typescript
-exitApp() => Promise<void>
+exitApp() => any
 ```
 
 Exit the application (Android only).
+
+**Returns:** <code>any</code>
 
 --------------------
 
@@ -387,11 +391,32 @@ Exit the application (Android only).
 ### Interfaces
 
 
+#### MediaFetchOptions
+
+| Prop                   | Type                                                    | Description                                                                                                                                                              |
+| ---------------------- | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **`quantity`**         | <code>number</code>                                     | The number of photos to fetch, sorted by last created date descending. To paginate, just request a higher quantity -- OS caching should make this relatively performant. |
+| **`thumbnailWidth`**   | <code>number</code>                                     | The width of thumbnail to return                                                                                                                                         |
+| **`thumbnailHeight`**  | <code>number</code>                                     | The height of thumbnail to return                                                                                                                                        |
+| **`thumbnailQuality`** | <code>number</code>                                     | The quality of thumbnail to return as JPEG (0-100)                                                                                                                       |
+| **`types`**            | <code>'photos' \| 'videos' \| 'all'</code>              | Which types of assets to return thumbnails for.                                                                                                                          |
+| **`albumIdentifier`**  | <code>string</code>                                     | Which album identifier to query in (get identifier with getAlbums())                                                                                                     |
+| **`sort`**             | <code>{} \| <a href="#mediafield">MediaField</a></code> | Sort order of returned assets by field and ascending/descending                                                                                                          |
+
+
+#### MediaSort
+
+| Prop            | Type                                              |
+| --------------- | ------------------------------------------------- |
+| **`key`**       | <code><a href="#mediafield">MediaField</a></code> |
+| **`ascending`** | <code>boolean</code>                              |
+
+
 #### MediaResponse
 
-| Prop         | Type                      |
-| ------------ | ------------------------- |
-| **`medias`** | <code>MediaAsset[]</code> |
+| Prop         | Type            |
+| ------------ | --------------- |
+| **`medias`** | <code>{}</code> |
 
 
 #### MediaAsset
@@ -420,27 +445,6 @@ Exit the application (Android only).
 | **`speed`**     | <code>number</code> | Speed of user at time image was taken    |
 
 
-#### MediaFetchOptions
-
-| Prop                   | Type                                                             | Description                                                                                                                                                              |
-| ---------------------- | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **`quantity`**         | <code>number</code>                                              | The number of photos to fetch, sorted by last created date descending. To paginate, just request a higher quantity -- OS caching should make this relatively performant. |
-| **`thumbnailWidth`**   | <code>number</code>                                              | The width of thumbnail to return                                                                                                                                         |
-| **`thumbnailHeight`**  | <code>number</code>                                              | The height of thumbnail to return                                                                                                                                        |
-| **`thumbnailQuality`** | <code>number</code>                                              | The quality of thumbnail to return as JPEG (0-100)                                                                                                                       |
-| **`types`**            | <code>'photos' \| 'videos' \| 'all'</code>                       | Which types of assets to return thumbnails for.                                                                                                                          |
-| **`albumIdentifier`**  | <code>string</code>                                              | Which album identifier to query in (get identifier with getAlbums())                                                                                                     |
-| **`sort`**             | <code><a href="#mediafield">MediaField</a> \| MediaSort[]</code> | Sort order of returned assets by field and ascending/descending                                                                                                          |
-
-
-#### MediaSort
-
-| Prop            | Type                                              |
-| --------------- | ------------------------------------------------- |
-| **`key`**       | <code><a href="#mediafield">MediaField</a></code> |
-| **`ascending`** | <code>boolean</code>                              |
-
-
 #### MediaPath
 
 | Prop             | Type                | Description                |
@@ -451,9 +455,9 @@ Exit the application (Android only).
 
 #### MediaAlbumResponse
 
-| Prop         | Type                      |
-| ------------ | ------------------------- |
-| **`albums`** | <code>MediaAlbum[]</code> |
+| Prop         | Type            |
+| ------------ | --------------- |
+| **`albums`** | <code>{}</code> |
 
 
 #### MediaAlbum
@@ -465,14 +469,6 @@ Exit the application (Android only).
 | **`type`**       | <code><a href="#mediaalbumtype">MediaAlbumType</a></code> |
 
 
-#### PhotoResponse
-
-| Prop             | Type                | Description                                                                                                    |
-| ---------------- | ------------------- | -------------------------------------------------------------------------------------------------------------- |
-| **`filePath`**   | <code>string</code> | Available on Android only.                                                                                     |
-| **`identifier`** | <code>string</code> | Available on iOS only. To get a file path for an image on iOS, pass this identifier to `getMediaByIdentifier`. |
-
-
 #### MediaSaveOptions
 
 | Prop                  | Type                | Description                                                                                                                                                                                                                                                                                                                                                              |
@@ -480,6 +476,14 @@ Exit the application (Android only).
 | **`path`**            | <code>string</code> | Web URL, base64 encoded URI, or local file path to save.                                                                                                                                                                                                                                                                                                                 |
 | **`albumIdentifier`** | <code>string</code> | Album identifier from getAlbums(). Since 5.0, identifier is used on both Android and iOS. Identifier is required on Android but not on iOS. On iOS 14+, if the identifier is not specified and no permissions have been requested yet, add-only permissions will be requested instead of full permissions (assuming NSPhotoLibraryAddUsageDescription is in Info.plist). |
 | **`fileName`**        | <code>string</code> | File name to save the image as in the album. Do not include extension. Android only.                                                                                                                                                                                                                                                                                     |
+
+
+#### PhotoResponse
+
+| Prop             | Type                | Description                                                                                                    |
+| ---------------- | ------------------- | -------------------------------------------------------------------------------------------------------------- |
+| **`filePath`**   | <code>string</code> | Available on Android only.                                                                                     |
+| **`identifier`** | <code>string</code> | Available on iOS only. To get a file path for an image on iOS, pass this identifier to `getMediaByIdentifier`. |
 
 
 #### MediaAlbumCreate
@@ -506,9 +510,9 @@ Exit the application (Android only).
 
 #### PhotosResponse
 
-| Prop         | Type                     |
-| ------------ | ------------------------ |
-| **`photos`** | <code>PhotoInfo[]</code> |
+| Prop         | Type            |
+| ------------ | --------------- |
+| **`photos`** | <code>{}</code> |
 
 
 #### PhotoInfo

@@ -281,75 +281,178 @@ public class MediaPlugin: CAPPlugin {
     }
     
     @objc override public func checkPermissions(_ call: CAPPluginCall) {
-        let status = PHPhotoLibrary.authorizationStatus()
-        var response = JSObject()
-        
-        switch status {
-        case .authorized, .limited:
-            response["granted"] = true
-            response["status"] = "granted"
-        case .denied, .restricted:
-            response["granted"] = false
-            response["status"] = "denied"
-        case .notDetermined:
-            response["granted"] = false
-            response["status"] = "prompt"
-        @unknown default:
-            response["granted"] = false
-            response["status"] = "denied"
+        let readWriteStatus: PHAuthorizationStatus
+        if #available(iOS 14, *) {
+            readWriteStatus = PHPhotoLibrary.authorizationStatus(for: .readWrite)
+        } else {
+            readWriteStatus = PHPhotoLibrary.authorizationStatus()
         }
+        
+        var status = "denied"
+        // .limited 也是一种授权状态
+        if readWriteStatus == .authorized || readWriteStatus == .limited {
+            status = "granted"
+        } else if readWriteStatus == .notDetermined {
+            status = "prompt"
+        }
+
+        var response = JSObject()
+        response["granted"] = (status == "granted")
+        response["status"] = status
         
         call.resolve(response)
     }
+
+    @objc func getFile(_ call: CAPPluginCall) {
+        checkAuthorization(permission: .readWrite, allowed: {
+            guard let contentUriString = call.getString("contentUri") else {
+                call.reject("contentUri parameter is required", EC_ARG_ERROR)
+                return
+            }
+            
+            if !contentUriString.starts(with: "ph://") {
+                call.reject("Invalid contentUri format for iOS. Expected 'ph://<identifier>'", EC_ARG_ERROR)
+                return
+            }
+
+            let quality = call.getInt("quality", 75)
+            let maxWidth = call.getInt("maxWidth", 1024)
+            let maxHeight = call.getInt("maxHeight", 1024)
+            
+            let identifier = contentUriString.replacingOccurrences(of: "ph://", with: "")
+            let fetchResult = PHAsset.fetchAssets(withLocalIdentifiers: [identifier], options: nil)
+            
+            guard let asset = fetchResult.firstObject else {
+                call.reject("Asset not found for identifier: \(identifier)", EC_ARG_ERROR)
+                return
+            }
+
+            // Handle Images
+            if asset.mediaType == .image {
+                let options = PHImageRequestOptions()
+                options.isNetworkAccessAllowed = true
+                options.version = .current
+                options.deliveryMode = .highQualityFormat
+
+                // Note: We request orientation but will not use it for correction, per instructions.
+                PHImageManager.default().requestImageDataAndOrientation(for: asset, options: options) { (imageData, dataUTI, orientation, info) in
+                    guard let imageData = imageData, let image = UIImage(data: imageData) else {
+                        call.reject("Unable to load image data", EC_FS_ERROR)
+                        return
+                    }
+
+                    // **REMOVED**: Orientation correction is no longer performed here.
+                    
+                    // Resize image
+                    let resizedImage = self.resizeImage(image: image, maxWidth: CGFloat(maxWidth), maxHeight: CGFloat(maxHeight))
+                    
+                    // Convert to JPEG
+                    let jpegQuality = max(0.0, min(1.0, CGFloat(quality) / 100.0))
+                    guard let jpegData = resizedImage.jpegData(compressionQuality: jpegQuality) else {
+                        call.reject("Unable to convert image to JPEG", EC_FS_ERROR)
+                        return
+                    }
+                    
+                    let base64Data = jpegData.base64EncodedString()
+                    let originalFilename = asset.value(forKey: "filename") as? String ?? ""
+                    let newFilename = (originalFilename as NSString).deletingPathExtension + ".jpg"
+                    
+                    var ret = JSObject()
+                    ret["base64Data"] = base64Data
+                    ret["name"] = newFilename.isEmpty ? "\(identifier).jpg" : newFilename
+                    ret["type"] = "image/jpeg"
+                    ret["size"] = jpegData.count
+                    
+                    call.resolve(ret)
+                }
+            } else { // Handle non-image files (like videos)
+                let options = PHVideoRequestOptions()
+                options.isNetworkAccessAllowed = true
+                options.version = .current
+                options.deliveryMode = .highQualityFormat
+                
+                PHImageManager.default().requestAVAsset(forVideo: asset, options: options) { (avAsset, audioMix, info) in
+                    guard let urlAsset = avAsset as? AVURLAsset else {
+                        call.reject("Unable to load video asset", EC_FS_ERROR)
+                        return
+                    }
+                    
+                    do {
+                        let fileData = try Data(contentsOf: urlAsset.url)
+                        let base64Data = fileData.base64EncodedString()
+                        let filename = asset.value(forKey: "filename") as? String ?? "\(identifier).mov"
+                        
+                        let fileExtension = urlAsset.url.pathExtension
+                        let uti = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, fileExtension as CFString, nil)?.takeRetainedValue()
+                        let mimeType = uti.flatMap { UTTypeCopyPreferredTagWithClass($0, kUTTagClassMIMEType)?.takeRetainedValue() as String? } ?? "application/octet-stream"
+
+                        var ret = JSObject()
+                        ret["base64Data"] = base64Data
+                        ret["name"] = filename
+                        ret["type"] = mimeType
+                        ret["size"] = fileData.count
+                        
+                        call.resolve(ret)
+                    } catch {
+                        call.reject("Error reading file data: \(error.localizedDescription)", EC_FS_ERROR)
+                    }
+                }
+            }
+        }, notAllowed: {
+            call.reject("Access to photos not allowed by user", EC_ACCESS_DENIED)
+        })
+    }
     
     @objc override public func requestPermissions(_ call: CAPPluginCall) {
-        if #available(iOS 14, *) {
-            PHPhotoLibrary.requestAuthorization(for: .readWrite) { status in
-                DispatchQueue.main.async {
-                    var response = JSObject()
-                    
-                    switch status {
-                    case .authorized, .limited:
-                        response["granted"] = true
-                        response["status"] = "granted"
-                    case .denied, .restricted:
-                        response["granted"] = false
-                        response["status"] = "denied"
-                    case .notDetermined:
-                        response["granted"] = false
-                        response["status"] = "prompt"
-                    @unknown default:
-                        response["granted"] = false
-                        response["status"] = "denied"
-                    }
-                    
-                    call.resolve(response)
+        let permissionHandler = { (status: PHAuthorizationStatus) in
+            DispatchQueue.main.async {
+                var response = JSObject()
+                var permStatus = "denied"
+                // .limited 也是一种授权状态
+                if status == .authorized || status == .limited {
+                    permStatus = "granted"
+                } else if status == .notDetermined {
+                    permStatus = "prompt"
                 }
-            }
-        } else {
-            PHPhotoLibrary.requestAuthorization { status in
-                DispatchQueue.main.async {
-                    var response = JSObject()
-                    
-                    switch status {
-                    case .authorized:
-                        response["granted"] = true
-                        response["status"] = "granted"
-                    case .denied, .restricted:
-                        response["granted"] = false
-                        response["status"] = "denied"
-                    case .notDetermined:
-                        response["granted"] = false
-                        response["status"] = "prompt"
-                    @unknown default:
-                        response["granted"] = false
-                        response["status"] = "denied"
-                    }
-                    
-                    call.resolve(response)
-                }
+                
+                response["granted"] = (permStatus == "granted")
+                response["status"] = permStatus
+                
+                call.resolve(response)
             }
         }
+        
+        if #available(iOS 14, *) {
+            PHPhotoLibrary.requestAuthorization(for: .readWrite, handler: permissionHandler)
+        } else {
+            // Fallback on earlier versions
+            PHPhotoLibrary.requestAuthorization(permissionHandler)
+        }
+    }
+
+    private func resizeImage(image: UIImage, maxWidth: CGFloat, maxHeight: CGFloat) -> UIImage {
+        let originalWidth = image.size.width
+        let originalHeight = image.size.height
+
+        // 如果图片尺寸已经小于等于目标尺寸，则无需缩放
+        if originalWidth <= maxWidth && originalHeight <= maxHeight {
+            return image
+        }
+
+        let widthRatio = maxWidth / originalWidth
+        let heightRatio = maxHeight / originalHeight
+        let scaleRatio = min(widthRatio, heightRatio)
+
+        let newWidth = originalWidth * scaleRatio
+        let newHeight = originalHeight * scaleRatio
+        let newSize = CGSize(width: newWidth, height: newHeight)
+
+        UIGraphicsBeginImageContextWithOptions(newSize, false, 1.0)
+        image.draw(in: CGRect(origin: .zero, size: newSize))
+        let newImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+
+        return newImage ?? image
     }
     
     @objc func getPhotos(_ call: CAPPluginCall) {

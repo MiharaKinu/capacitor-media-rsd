@@ -11,4 +11,11 @@ CAP_PLUGIN(MediaPlugin, "Media",
     CAP_PLUGIN_METHOD(savePhoto, CAPPluginReturnPromise);
     CAP_PLUGIN_METHOD(saveVideo, CAPPluginReturnPromise);
     CAP_PLUGIN_METHOD(getAlbumsPath, CAPPluginReturnPromise);
+
+    CAP_PLUGIN_METHOD(checkPermissions, CAPPluginReturnPromise);
+    CAP_PLUGIN_METHOD(requestPermissions, CAPPluginReturnPromise);
+    CAP_PLUGIN_METHOD(getPhotos, CAPPluginReturnPromise);
+    CAP_PLUGIN_METHOD(getAllPhotos, CAPPluginReturnPromise);
+    CAP_PLUGIN_METHOD(getPhotoInfo, CAPPluginReturnPromise);
+    CAP_PLUGIN_METHOD(getFile, CAPPluginReturnPromise);
 )

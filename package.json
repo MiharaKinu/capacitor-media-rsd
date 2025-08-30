@@ -1,6 +1,6 @@
 {
   "name": "capacitor-media-rsd",
-  "version": "8.0.2",
+  "version": "8.0.4",
   "description": "Capacitor plugin for saving and retrieving photos and videos, and managing photo albums.",
   "author": "Nisala Kalupahana",
   "license": "MIT",
@@ -44,7 +44,7 @@
   "devDependencies": {
     "@capacitor/android": "^7.0.1",
     "@capacitor/cli": "^7.0.1",
-    "@capacitor/core": "^7.0.1",
+    "@capacitor/core": "^6.2.1",
     "@capacitor/docgen": "^0.3.0",
     "@capacitor/ios": "^7.0.1",
     "@ionic/eslint-config": "^0.4.0",
@@ -58,9 +58,6 @@
     "rollup": "^4.30.1",
     "swiftlint": "^2.0.0",
     "typescript": "~4.1.5"
-  },
-  "peerDependencies": {
-    "@capacitor/core": ">=7.0.0"
   },
   "prettier": "@ionic/prettier-config",
   "swiftlint": "@ionic/swiftlint-config",
