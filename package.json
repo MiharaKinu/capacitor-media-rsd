@@ -1,6 +1,6 @@
 {
-  "name": "@capacitor-community/media",
-  "version": "8.0.1",
+  "name": "capacitor-media-rsd",
+  "version": "8.0.2",
   "description": "Capacitor plugin for saving and retrieving photos and videos, and managing photo albums.",
   "author": "Nisala Kalupahana",
   "license": "MIT",
@@ -13,7 +13,7 @@
     "android/build.gradle",
     "dist/",
     "ios/Plugin/",
-    "CapacitorCommunityMedia.podspec"
+    "CapacitorMediaRSD.podspec"
   ],
   "keywords": [
     "capacitor",
@@ -77,9 +77,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/capacitor-community/media"
+    "url": "https://github.com/capacitor-media-rsd/media"
   },
   "bugs": {
-    "url": "https://github.com/capacitor-community/media/issues"
+    "url": "https://github.com/capacitor-media-rsd/media/issues"
   }
 }

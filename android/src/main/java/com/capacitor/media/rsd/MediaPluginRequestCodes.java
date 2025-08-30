@@ -1,4 +1,4 @@
-package com.getcapacitor.community.media;
+package com.capacitor.media.rsd;
 
 public class MediaPluginRequestCodes {
 

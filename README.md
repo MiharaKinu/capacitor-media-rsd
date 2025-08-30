@@ -1,6 +1,6 @@
 <p align="center"><br><img src="https://user-images.githubusercontent.com/236501/85893648-1c92e880-b7a8-11ea-926d-95355b8175c7.png" width="128" height="128" /></p>
-<h3 align="center">Capacitor Media</h3>
-<p align="center"><strong><code>@capacitor-community/media</code></strong></p>
+<h3 align="center">Capacitor Media RSD</h3>
+<p align="center"><strong><code>capacitor-media-rsd</code></strong></p>
 <p align="center">
   Capacitor plugin for saving and retrieving photos and videos, and managing photo albums.
 </p>
@@ -27,7 +27,7 @@
 ## Installation
 
 ```bash
-npm install @capacitor-community/media
+npm install capacitor-media-rsd
 ```
 
 This plugin is currently maintained for Capacitor 7 (plugin version 8). Add an `@7` at the end to install for Capacitor 6. There are currently no API changes between these two versions, so if you're migrating from plugin v7 to v8 (Capacitor 6 to 7), no code changes should be required.
@@ -124,6 +124,13 @@ Unless otherwise noted, there should be full feature parity between iOS and Andr
 * [`saveVideo(...)`](#savevideo)
 * [`createAlbum(...)`](#createalbum)
 * [`getAlbumsPath()`](#getalbumspath)
+* [`checkPermissions()`](#checkpermissions)
+* [`requestPermissions()`](#requestpermissions)
+* [`getPhotos(...)`](#getphotos)
+* [`getAllPhotos()`](#getallphotos)
+* [`getPhotoInfo(...)`](#getphotoinfo)
+* [`getFile(...)`](#getfile)
+* [`exitApp()`](#exitapp)
 * [Interfaces](#interfaces)
 * [Type Aliases](#type-aliases)
 * [Enums](#enums)
@@ -276,6 +283,107 @@ Code Examples: [basic](https://github.com/capacitor-community/media/blob/main/ex
 --------------------
 
 
+### checkPermissions()
+
+```typescript
+checkPermissions() => Promise<PermissionStatus>
+```
+
+Check current permissions status for accessing photos.
+
+**Returns:** <code>Promise&lt;<a href="#permissionstatus">PermissionStatus</a>&gt;</code>
+
+--------------------
+
+
+### requestPermissions()
+
+```typescript
+requestPermissions() => Promise<PermissionStatus>
+```
+
+Request permissions for accessing photos.
+
+**Returns:** <code>Promise&lt;<a href="#permissionstatus">PermissionStatus</a>&gt;</code>
+
+--------------------
+
+
+### getPhotos(...)
+
+```typescript
+getPhotos(options?: { albumId?: string | undefined; } | undefined) => Promise<PhotosResponse>
+```
+
+Get photos from a specific album or all photos.
+
+| Param         | Type                               |
+| ------------- | ---------------------------------- |
+| **`options`** | <code>{ albumId?: string; }</code> |
+
+**Returns:** <code>Promise&lt;<a href="#photosresponse">PhotosResponse</a>&gt;</code>
+
+--------------------
+
+
+### getAllPhotos()
+
+```typescript
+getAllPhotos() => Promise<PhotosResponse>
+```
+
+Get all photos from the device.
+
+**Returns:** <code>Promise&lt;<a href="#photosresponse">PhotosResponse</a>&gt;</code>
+
+--------------------
+
+
+### getPhotoInfo(...)
+
+```typescript
+getPhotoInfo(options: { path: string; }) => Promise<PhotoInfo>
+```
+
+Get detailed information about a specific photo.
+
+| Param         | Type                           |
+| ------------- | ------------------------------ |
+| **`options`** | <code>{ path: string; }</code> |
+
+**Returns:** <code>Promise&lt;<a href="#photoinfo">PhotoInfo</a>&gt;</code>
+
+--------------------
+
+
+### getFile(...)
+
+```typescript
+getFile(options: { contentUri: string; quality?: number; maxWidth?: number; maxHeight?: number; }) => Promise<{ base64Data: string; name: string; type: string; size: number; }>
+```
+
+Get file content as base64 data (Android only).
+
+| Param         | Type                                                                                          |
+| ------------- | --------------------------------------------------------------------------------------------- |
+| **`options`** | <code>{ contentUri: string; quality?: number; maxWidth?: number; maxHeight?: number; }</code> |
+
+**Returns:** <code>Promise&lt;{ base64Data: string; name: string; type: string; size: number; }&gt;</code>
+
+--------------------
+
+
+### exitApp()
+
+```typescript
+exitApp() => Promise<void>
+```
+
+Exit the application (Android only).
+
+--------------------
+
+
 ### Interfaces
 
 
@@ -386,6 +494,37 @@ Code Examples: [basic](https://github.com/capacitor-community/media/blob/main/ex
 | Prop       | Type                |
 | ---------- | ------------------- |
 | **`path`** | <code>string</code> |
+
+
+#### PermissionStatus
+
+| Prop          | Type                                           |
+| ------------- | ---------------------------------------------- |
+| **`granted`** | <code>boolean</code>                           |
+| **`status`**  | <code>'granted' \| 'denied' \| 'prompt'</code> |
+
+
+#### PhotosResponse
+
+| Prop         | Type                     |
+| ------------ | ------------------------ |
+| **`photos`** | <code>PhotoInfo[]</code> |
+
+
+#### PhotoInfo
+
+| Prop             | Type                |
+| ---------------- | ------------------- |
+| **`id`**         | <code>string</code> |
+| **`name`**       | <code>string</code> |
+| **`path`**       | <code>string</code> |
+| **`contentUri`** | <code>string</code> |
+| **`dateTaken`**  | <code>number</code> |
+| **`size`**       | <code>number</code> |
+| **`width`**      | <code>number</code> |
+| **`height`**     | <code>number</code> |
+| **`albumId`**    | <code>string</code> |
+| **`albumName`**  | <code>string</code> |
 
 
 ### Type Aliases

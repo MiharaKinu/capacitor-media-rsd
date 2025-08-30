@@ -81,6 +81,34 @@ export interface MediaPlugin {
    * Code Examples: [basic](https://github.com/capacitor-community/media/blob/main/example/src/components/CreateDemoAlbum.tsx), [when saving media](https://github.com/capacitor-community/media/blob/main/example/src/components/SaveMedia.tsx)
    */
   getAlbumsPath(): Promise<AlbumsPathResponse>;
+  /**
+   * Check current permissions status for accessing photos.
+   */
+  checkPermissions(): Promise<PermissionStatus>;
+  /**
+   * Request permissions for accessing photos.
+   */
+  requestPermissions(): Promise<PermissionStatus>;
+  /**
+   * Get photos from a specific album or all photos.
+   */
+  getPhotos(options?: { albumId?: string }): Promise<PhotosResponse>;
+  /**
+   * Get all photos from the device.
+   */
+  getAllPhotos(): Promise<PhotosResponse>;
+  /**
+   * Get detailed information about a specific photo.
+   */
+  getPhotoInfo(options: { path: string }): Promise<PhotoInfo>;
+  /**
+   * Get file content as base64 data (Android only).
+   */
+  getFile(options: { contentUri: string; quality?: number; maxWidth?: number; maxHeight?: number }): Promise<{ base64Data: string; name: string; type: string; size: number }>;
+  /**
+   * Exit the application (Android only).
+   */
+  exitApp(): Promise<void>;
 }
 
 export interface MediaSaveOptions {
@@ -278,4 +306,26 @@ export interface PhotoResponse {
    * `getMediaByIdentifier`.
    */
   identifier?: string;
+}
+
+export interface PermissionStatus {
+  granted: boolean;
+  status: 'granted' | 'denied' | 'prompt';
+}
+
+export interface PhotosResponse {
+  photos: PhotoInfo[];
+}
+
+export interface PhotoInfo {
+  id: string;
+  name: string;
+  path: string;
+  contentUri: string;
+  dateTaken: number;
+  size: number;
+  width: number;
+  height: number;
+  albumId: string;
+  albumName: string;
 }

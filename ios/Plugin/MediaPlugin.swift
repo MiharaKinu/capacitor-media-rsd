@@ -280,6 +280,102 @@ public class MediaPlugin: CAPPlugin {
         call.unimplemented("Not implemented on iOS.")
     }
     
+    @objc override public func checkPermissions(_ call: CAPPluginCall) {
+        let status = PHPhotoLibrary.authorizationStatus()
+        var response = JSObject()
+        
+        switch status {
+        case .authorized, .limited:
+            response["granted"] = true
+            response["status"] = "granted"
+        case .denied, .restricted:
+            response["granted"] = false
+            response["status"] = "denied"
+        case .notDetermined:
+            response["granted"] = false
+            response["status"] = "prompt"
+        @unknown default:
+            response["granted"] = false
+            response["status"] = "denied"
+        }
+        
+        call.resolve(response)
+    }
+    
+    @objc override public func requestPermissions(_ call: CAPPluginCall) {
+        if #available(iOS 14, *) {
+            PHPhotoLibrary.requestAuthorization(for: .readWrite) { status in
+                DispatchQueue.main.async {
+                    var response = JSObject()
+                    
+                    switch status {
+                    case .authorized, .limited:
+                        response["granted"] = true
+                        response["status"] = "granted"
+                    case .denied, .restricted:
+                        response["granted"] = false
+                        response["status"] = "denied"
+                    case .notDetermined:
+                        response["granted"] = false
+                        response["status"] = "prompt"
+                    @unknown default:
+                        response["granted"] = false
+                        response["status"] = "denied"
+                    }
+                    
+                    call.resolve(response)
+                }
+            }
+        } else {
+            PHPhotoLibrary.requestAuthorization { status in
+                DispatchQueue.main.async {
+                    var response = JSObject()
+                    
+                    switch status {
+                    case .authorized:
+                        response["granted"] = true
+                        response["status"] = "granted"
+                    case .denied, .restricted:
+                        response["granted"] = false
+                        response["status"] = "denied"
+                    case .notDetermined:
+                        response["granted"] = false
+                        response["status"] = "prompt"
+                    @unknown default:
+                        response["granted"] = false
+                        response["status"] = "denied"
+                    }
+                    
+                    call.resolve(response)
+                }
+            }
+        }
+    }
+    
+    @objc func getPhotos(_ call: CAPPluginCall) {
+        checkAuthorization(permission: .readWrite, allowed: {
+            self.fetchPhotosToJs(call)
+        }, notAllowed: {
+            call.reject("Access to photos not allowed by user", EC_ACCESS_DENIED)
+        })
+    }
+    
+    @objc func getAllPhotos(_ call: CAPPluginCall) {
+        checkAuthorization(permission: .readWrite, allowed: {
+            self.fetchAllPhotosToJs(call)
+        }, notAllowed: {
+            call.reject("Access to photos not allowed by user", EC_ACCESS_DENIED)
+        })
+    }
+    
+    @objc func getPhotoInfo(_ call: CAPPluginCall) {
+        checkAuthorization(permission: .readWrite, allowed: {
+            self.fetchPhotoInfoToJs(call)
+        }, notAllowed: {
+            call.reject("Access to photos not allowed by user", EC_ACCESS_DENIED)
+        })
+    }
+    
     @available(iOS 14, *)
     func getPHAccessLevel(permission: AccessLevel) -> PHAccessLevel {
         switch (permission) {
@@ -476,5 +572,101 @@ public class MediaPlugin: CAPPlugin {
         loc["heading"] = location.course
         loc["speed"] = location.speed
         return loc
+    }
+    
+    func fetchPhotosToJs(_ call: CAPPluginCall) {
+        let albumId = call.getString("albumId")
+        var fetchResult: PHFetchResult<PHAsset>
+        
+        let fetchOptions = PHFetchOptions()
+        fetchOptions.predicate = NSPredicate(format: "mediaType = %d", PHAssetMediaType.image.rawValue)
+        fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
+        
+        if let albumId = albumId {
+            // Fetch photos from specific album
+            let albumFetchResult = PHAssetCollection.fetchAssetCollections(withLocalIdentifiers: [albumId], options: nil)
+            if let album = albumFetchResult.firstObject {
+                fetchResult = PHAsset.fetchAssets(in: album, options: fetchOptions)
+            } else {
+                call.reject("Album not found", EC_ARG_ERROR)
+                return
+            }
+        } else {
+            // Fetch all photos
+            fetchResult = PHAsset.fetchAssets(with: .image, options: fetchOptions)
+        }
+        
+        var photos: [JSObject] = []
+        
+        fetchResult.enumerateObjects { (asset, _, _) in
+            let photo = self.createPhotoObject(asset: asset)
+            photos.append(photo)
+        }
+        
+        var response = JSObject()
+        response["photos"] = photos
+        call.resolve(response)
+    }
+    
+    func fetchAllPhotosToJs(_ call: CAPPluginCall) {
+        let fetchOptions = PHFetchOptions()
+        fetchOptions.predicate = NSPredicate(format: "mediaType = %d", PHAssetMediaType.image.rawValue)
+        fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
+        
+        let fetchResult = PHAsset.fetchAssets(with: .image, options: fetchOptions)
+        
+        var photos: [JSObject] = []
+        
+        fetchResult.enumerateObjects { (asset, _, _) in
+            let photo = self.createPhotoObject(asset: asset)
+            photos.append(photo)
+        }
+        
+        var response = JSObject()
+        response["photos"] = photos
+        call.resolve(response)
+    }
+    
+    func fetchPhotoInfoToJs(_ call: CAPPluginCall) {
+        guard let path = call.getString("path") else {
+            call.reject("Path is required", EC_ARG_ERROR)
+            return
+        }
+        
+        // Extract identifier from path (assuming path contains the identifier)
+        let url = URL(fileURLWithPath: path)
+        let identifier = url.lastPathComponent.replacingOccurrences(of: ".\(url.pathExtension)", with: "")
+        
+        let fetchResult = PHAsset.fetchAssets(withLocalIdentifiers: [identifier], options: nil)
+        
+        guard let asset = fetchResult.firstObject else {
+            call.reject("Photo not found", EC_ARG_ERROR)
+            return
+        }
+        
+        let photoInfo = createPhotoObject(asset: asset)
+        call.resolve(photoInfo)
+    }
+    
+    func createPhotoObject(asset: PHAsset) -> JSObject {
+        var photo = JSObject()
+        
+        // Get album information
+        let albumFetchResult = PHAssetCollection.fetchAssetCollectionsContaining(asset, with: .album, options: nil)
+        let albumName = albumFetchResult.firstObject?.localizedTitle ?? "Unknown"
+        let albumId = albumFetchResult.firstObject?.localIdentifier ?? ""
+        
+        photo["id"] = asset.localIdentifier
+        photo["name"] = asset.value(forKey: "filename") as? String ?? "Unknown"
+        photo["path"] = asset.localIdentifier // On iOS, we use identifier as path
+        photo["contentUri"] = "ph://\(asset.localIdentifier)"
+        photo["dateTaken"] = Int64((asset.creationDate?.timeIntervalSince1970 ?? 0) * 1000)
+        photo["size"] = 0 // Size not easily available without requesting image data
+        photo["width"] = asset.pixelWidth
+        photo["height"] = asset.pixelHeight
+        photo["albumId"] = albumId
+        photo["albumName"] = albumName
+        
+        return photo
     }
 }

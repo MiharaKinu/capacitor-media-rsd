@@ -10,6 +10,9 @@ import type {
   MediaResponse,
   MediaSaveOptions,
   PhotoResponse,
+  PermissionStatus,
+  PhotosResponse,
+  PhotoInfo,
 } from './definitions';
 
 export class MediaWeb extends WebPlugin implements MediaPlugin {
@@ -38,6 +41,36 @@ export class MediaWeb extends WebPlugin implements MediaPlugin {
   }
   getAlbumsPath(): Promise<AlbumsPathResponse> {
     console.log('getAlbumsPath');
+    throw this.unimplemented('Not implemented on web.');
+  }
+  checkPermissions(): Promise<PermissionStatus> {
+    console.log('checkPermissions');
+    throw this.unimplemented('Not implemented on web.');
+  }
+  requestPermissions(): Promise<PermissionStatus> {
+    console.log('requestPermissions');
+    throw this.unimplemented('Not implemented on web.');
+  }
+  getPhotos(options?: { albumId?: string }): Promise<PhotosResponse> {
+    console.log('getPhotos', options);
+    throw this.unimplemented('Not implemented on web.');
+  }
+  getAllPhotos(): Promise<PhotosResponse> {
+    console.log('getAllPhotos');
+    throw this.unimplemented('Not implemented on web.');
+  }
+  getPhotoInfo(options: { path: string }): Promise<PhotoInfo> {
+    console.log('getPhotoInfo', options);
+    throw this.unimplemented('Not implemented on web.');
+  }
+
+  getFile(options: { contentUri: string; quality?: number; maxWidth?: number; maxHeight?: number }): Promise<{ base64Data: string; name: string; type: string; size: number }> {
+    console.log('getFile', options);
+    throw this.unimplemented('Not implemented on web.');
+  }
+
+  exitApp(): Promise<void> {
+    console.log('exitApp');
     throw this.unimplemented('Not implemented on web.');
   }
 }
